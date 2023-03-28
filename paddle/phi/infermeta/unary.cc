@@ -3771,7 +3771,9 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
                               const std::vector<int>& decrease_axis,
                               MetaTensor* out,
                               MetaConfig config) {
+  std::cout << "start StridedSliceRawInferMeta" << std::endl;
   auto in_dims = x.dims();
+  std::cout << "in_dims" << in_dims << std::endl;
   PADDLE_ENFORCE_LT(
       in_dims.size(),
       7,
@@ -3779,7 +3781,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
           "The dimension of StridedSlice operator's input should be less "
           "than 7, but received dimension is %d.",
           in_dims.size()));
-
+  std::cout << "start StridedSliceRawInferMeta" << std::endl;
   auto starts_ = starts.GetData();
   auto ends_ = ends.GetData();
   auto strides_ = strides.GetData();
@@ -3787,6 +3789,10 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
   auto starts_size = starts_.size();
   auto ends_size = ends_.size();
   auto strides_size = strides_.size();
+  std::cout << "starts_size" << starts_size <<std::endl;
+  std::cout << "ends_size" << ends_size <<std::endl;
+  std::cout << "strides_size" << strides_size <<std::endl;
+  std::cout << "axes size" << axes.size() <<std::endl;
 
   for (size_t i = 0; i < axes.size(); ++i) {
     PADDLE_ENFORCE_GE(
@@ -3812,6 +3818,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
   if (HasInput(starts) || HasInput(ends) || HasInput(strides)) {
     tensor_input = true;
   }
+  std::cout << "tensor_input" << tensor_input <<std::endl;
   if (!HasInput(ends)) {
     PADDLE_ENFORCE_EQ(
         ends_size,
@@ -3848,7 +3855,9 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
   // we need to analysis strided slice op is valid for
   // the parameter that we get from python front
   std::vector<int64_t> out_dims_vector(in_dims.size(), -1);
+  std::cout << "out_dims_vector size" << out_dims_vector.size() <<std::endl;
   if (!tensor_input || config.is_runtime) {
+    std::cout << "jump to StridedSliceOutDims" << std::endl;
     phi::funcs::StridedSliceOutDims(starts_,
                                     ends_,
                                     strides_,
@@ -3864,6 +3873,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
   // generate new shape
   if (decrease_axis.size() > 0) {
     std::vector<int64_t> new_out_shape;
+    std::cout << "jump to decrease_axis size > 0" << decrease_axis.size()<< std::endl;
     for (size_t i = 0; i < decrease_axis.size(); ++i) {
       if (config.is_runtime && infer_flags[i] != -1) {
         PADDLE_ENFORCE_EQ(out_dims[decrease_axis[i]],
@@ -3875,9 +3885,10 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
       }
       out_dims[decrease_axis[i]] = 0;
     }
-
+    std::cout << "out_dims size" << out_dims.size() <<std::endl;
     for (int i = 0; i < out_dims.size(); ++i) {
       if (out_dims[i] != 0) {
+        std::cout << "out_dims[i] " << out_dims[i] <<std::endl;
         new_out_shape.push_back(out_dims[i]);
       }
     }
@@ -3890,6 +3901,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
   out->set_dims(out_dims);
   out->share_lod(x);
   out->set_dtype(x.dtype());
+  std::cout << "now finish: StridedSliceRawInferMeta" <<std::endl;
 }
 
 void StridedSliceInferMeta(const MetaTensor& x,
