@@ -3855,7 +3855,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
   // we need to analysis strided slice op is valid for
   // the parameter that we get from python front
   std::vector<int64_t> out_dims_vector(in_dims.size(), -1);
-  std::cout << "out_dims_vector size" << out_dims_vector.size() <<std::endl;
+  std::cout << "out_dims_vector size " << out_dims_vector.size() <<std::endl;
   if (!tensor_input || config.is_runtime) {
     std::cout << "jump to StridedSliceOutDims" << std::endl;
     phi::funcs::StridedSliceOutDims(starts_,
@@ -3868,6 +3868,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
                                     out_dims_vector.data(),
                                     axes.size(),
                                     true);
+    std::cout << "back from StridedSliceOutDims" << std::endl;
   }
   DDim out_dims(phi::make_ddim(out_dims_vector));
   // generate new shape
@@ -3897,6 +3898,7 @@ void StridedSliceRawInferMeta(const MetaTensor& x,
     }
     out_dims = phi::make_ddim(new_out_shape);
   }
+  std::cout << "now finish: decrease_axis.size() > 0" <<std::endl;
   VLOG(4) << "out_dims: " << out_dims;
   out->set_dims(out_dims);
   out->share_lod(x);
